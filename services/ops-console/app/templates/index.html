@@ -3,114 +3,562 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OpenPulse Ops Console</title>
+    <title>OpenPulse Demo Console</title>
     <style>
       :root {
-        --bg: #f2f6f5;
+        --bg: #f1f5f9;
+        --ink: #0f172a;
         --card: #ffffff;
-        --text: #0f172a;
-        --muted: #5b6472;
-        --accent: #007f5f;
+        --line: #dde5ee;
+        --accent: #0f766e;
+        --accent-dark: #115e59;
         --warn: #b45309;
+        --danger: #b91c1c;
+        --muted: #5b6472;
+      }
+      * {
+        box-sizing: border-box;
       }
       body {
         margin: 0;
+        background:
+          radial-gradient(circle at 8% 0%, #d6f4ec 0%, transparent 30%),
+          radial-gradient(circle at 90% 10%, #dbeafe 0%, transparent 32%),
+          var(--bg);
+        color: var(--ink);
         font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-        background: radial-gradient(circle at top left, #d8f2eb 0%, var(--bg) 55%);
-        color: var(--text);
       }
       header {
-        padding: 1.5rem 2rem;
-        background: #0f172a;
-        color: #e8efff;
+        padding: 1.2rem 1.4rem;
+        border-bottom: 1px solid #dce8f3;
+        background: #ffffffc9;
+        backdrop-filter: blur(6px);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1.25rem;
+      }
+      .sub {
+        margin-top: 0.2rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .banner {
+        margin: 0 1rem 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        border: 1px solid #f5c26b;
+        background: #fff7ed;
+        color: #9a3412;
+      }
+      .banner.ok {
+        border-color: #9bd3c9;
+        background: #ecfdf5;
+        color: #065f46;
       }
       main {
+        padding: 1rem;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 1rem;
-        padding: 1rem 2rem 2rem;
+      }
+      .grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
       }
       .card {
         background: var(--card);
+        border: 1px solid var(--line);
         border-radius: 14px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-        padding: 1rem;
+        padding: 0.9rem;
       }
-      .status {
+      .card h2 {
+        margin: 0 0 0.6rem;
+        font-size: 1rem;
+      }
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(80px, 1fr));
+        gap: 0.6rem;
+      }
+      .kpi {
+        background: #f8fbff;
+        border: 1px solid #e5edf6;
+        border-radius: 10px;
+        padding: 0.55rem;
+      }
+      .kpi .v {
+        font-size: 1.05rem;
+        font-weight: 700;
+      }
+      .kpi .l {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .status-pill {
         display: inline-flex;
-        padding: 0.2rem 0.6rem;
         border-radius: 999px;
-        background: #e6f7f1;
-        color: var(--accent);
-        font-size: 0.82rem;
+        padding: 0.2rem 0.5rem;
+        font-size: 0.78rem;
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .status-pill.down {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      button {
+        border: 0;
+        border-radius: 10px;
+        background: var(--accent);
+        color: #fff;
+        padding: 0.5rem 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover {
+        background: var(--accent-dark);
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid #d3deea;
+        border-radius: 8px;
+        padding: 0.45rem;
+        font: inherit;
+      }
+      textarea {
+        min-height: 80px;
+        resize: vertical;
       }
       table {
         width: 100%;
         border-collapse: collapse;
+        font-size: 0.86rem;
       }
       th,
       td {
         text-align: left;
-        border-bottom: 1px solid #e8eaf0;
-        padding: 0.45rem 0.2rem;
-        font-size: 0.9rem;
+        padding: 0.36rem 0.2rem;
+        border-bottom: 1px solid #edf1f7;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .small {
+        font-size: 0.8rem;
+      }
+      .ok {
+        color: var(--accent-dark);
       }
       .warn {
         color: var(--warn);
       }
-      .muted {
-        color: var(--muted);
+      .bad {
+        color: var(--danger);
+      }
+      .split {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr 1fr;
+      }
+      @media (max-width: 960px) {
+        .split {
+          grid-template-columns: 1fr;
+        }
+        .kpis {
+          grid-template-columns: repeat(2, minmax(80px, 1fr));
+        }
       }
     </style>
   </head>
   <body>
     <header>
-      <h1>OpenPulse Ops Console</h1>
-      <div class="muted">Updated {{ timestamp }}</div>
+      <h1>OpenPulse Demo Console</h1>
+      <div class="sub">
+        Interactive product demo: ingest synthetic wearable streams, inspect normalized data, and run governance decisions.
+      </div>
+      <div class="sub small">Last rendered {{ timestamp }}</div>
     </header>
+
+    <div class="banner {% if summary.status == 'ok' %}ok{% endif %}">
+      <strong>Console status:</strong> {{ summary.status or "degraded" }}
+      {% if summary.errors %}
+      <span class="small"> - {{ summary.errors | join(", ") }}</span>
+      {% endif %}
+    </div>
+
     <main>
       <section class="card">
-        <h2>Service Health</h2>
-        <p>Query API: <span class="status">{{ query_health.status }}</span></p>
-        <p>Governor Jeff: <span class="status">{{ governor_health.status }}</span></p>
-        <p><a href="http://localhost:3000" target="_blank">Grafana</a> | <a href="http://localhost:9090" target="_blank">Prometheus</a></p>
+        <h2>Platform Snapshot</h2>
+        <div class="kpis">
+          <div class="kpi">
+            <div class="v" id="kpi-observations">{{ summary.total_observations or 0 }}</div>
+            <div class="l">Observations</div>
+          </div>
+          <div class="kpi">
+            <div class="v" id="kpi-subjects">{{ summary.subjects or 0 }}</div>
+            <div class="l">Subjects</div>
+          </div>
+          <div class="kpi">
+            <div class="v" id="kpi-quality">{{ summary.avg_quality or "n/a" }}</div>
+            <div class="l">Avg Quality</div>
+          </div>
+        </div>
       </section>
-      <section class="card">
-        <h2>Top Risk Cohort</h2>
-        <table>
-          <thead>
-            <tr><th>Subject</th><th>Avg Glucose</th><th>Avg Stress</th><th>Avg Recovery</th></tr>
-          </thead>
-          <tbody>
-            {% for row in top_risk %}
-            <tr>
-              <td>{{ row.subject_id }}</td>
-              <td>{{ row.avg_glucose }}</td>
-              <td>{{ row.avg_stress }}</td>
-              <td>{{ row.avg_recovery }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Service Health</h2>
+          <div id="health-summary" class="muted small">Loading...</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="health-table"></tbody>
+          </table>
+          <div class="small muted">Refreshes every 20 seconds.</div>
+        </article>
+
+        <article class="card">
+          <h2>Run Demo Ingestion</h2>
+          <div class="small muted">Triggers synthetic data ingestion across all required manufacturers.</div>
+          <div class="split" style="margin-top: 0.6rem">
+            <label>
+              Subjects
+              <input id="run-subjects" type="number" min="1" max="100" value="2" />
+            </label>
+            <label>
+              Days
+              <input id="run-days" type="number" min="1" max="365" value="7" />
+            </label>
+          </div>
+          <label style="margin-top: 0.6rem; display: block">
+            Profile
+            <select id="run-profile">
+              <option value="healthy">healthy</option>
+              <option value="athletic">athletic</option>
+              <option value="at_risk">at_risk</option>
+              <option value="chronic">chronic</option>
+            </select>
+          </label>
+          <div style="margin-top: 0.6rem; display: flex; gap: 0.6rem; align-items: center">
+            <button id="run-demo-btn" type="button">Start Simulation</button>
+            <span id="run-demo-status" class="small muted">Idle</span>
+          </div>
+        </article>
       </section>
-      <section class="card">
-        <h2>Governance Decisions</h2>
-        <table>
-          <thead>
-            <tr><th>Proposal</th><th>Decision</th><th>Risk</th><th>Rationale</th></tr>
-          </thead>
-          <tbody>
-            {% for row in decisions %}
-            <tr>
-              <td>{{ row.proposal_id }}</td>
-              <td class="{% if row.decision == 'reject' %}warn{% endif %}">{{ row.decision }}</td>
-              <td>{{ row.risk_score }}</td>
-              <td>{{ row.rationale }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+
+      <section class="split">
+        <article class="card">
+          <h2>Manufacturer Coverage</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Manufacturer</th>
+                <th>Rows</th>
+              </tr>
+            </thead>
+            <tbody id="manufacturer-table">
+              {% for row in summary.manufacturers %}
+              <tr><td>{{ row.manufacturer }}</td><td>{{ row.c }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <h2>Metric Mix</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Rows</th>
+              </tr>
+            </thead>
+            <tbody id="metric-table">
+              {% for row in summary.metric_mix %}
+              <tr><td>{{ row.metric_code }}</td><td>{{ row.c }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="split">
+        <article class="card">
+          <h2>Top Risk Cohort</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Avg Glucose</th>
+                <th>Avg Stress</th>
+                <th>Avg Recovery</th>
+              </tr>
+            </thead>
+            <tbody id="risk-table">
+              {% for row in top_risk %}
+              <tr>
+                <td>{{ row.subject_id }}</td>
+                <td>{{ row.avg_glucose }}</td>
+                <td>{{ row.avg_stress }}</td>
+                <td>{{ row.avg_recovery }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </article>
+
+        <article class="card">
+          <h2>Normalization Pipeline Health</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Run Status</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody id="run-status-table">
+              {% for row in summary.normalization_runs %}
+              <tr><td>{{ row.status }}</td><td>{{ row.c }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <h2 style="margin-top: 0.9rem">Failed Queue</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Replay Status</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody id="failed-queue-table">
+              {% for row in summary.failed_queue %}
+              <tr><td>{{ row.replay_status }}</td><td>{{ row.c }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="split">
+        <article class="card">
+          <h2>Governance Decision Simulator</h2>
+          <div class="small muted">Submit a roadmap/schema/release proposal to openpulse-governor-jeff.</div>
+          <label style="margin-top: 0.6rem; display: block">
+            Proposal ID
+            <input id="gov-proposal-id" value="demo-proposal-001" />
+          </label>
+          <label style="margin-top: 0.6rem; display: block">
+            Proposal Type
+            <select id="gov-proposal-type">
+              <option value="schema_change">schema_change</option>
+              <option value="roadmap_change">roadmap_change</option>
+              <option value="breaking_change">breaking_change</option>
+              <option value="connector_priority">connector_priority</option>
+              <option value="release">release</option>
+            </select>
+          </label>
+          <label style="margin-top: 0.6rem; display: block">
+            Summary
+            <textarea id="gov-summary">Add a new hydration biosignal extension with backward-compatible schema updates.</textarea>
+          </label>
+          <div class="split" style="margin-top: 0.6rem">
+            <label>Impact Scope
+              <select id="gov-impact-scope">
+                <option value="low">low</option>
+                <option value="medium" selected>medium</option>
+                <option value="high">high</option>
+              </select>
+            </label>
+            <label>Backward Compatible
+              <select id="gov-backward-compatible">
+                <option value="true" selected>true</option>
+                <option value="false">false</option>
+              </select>
+            </label>
+          </div>
+          <div class="split" style="margin-top: 0.6rem">
+            <label>Adoption Benefit (1-10)<input id="gov-adoption" type="number" min="1" max="10" value="8" /></label>
+            <label>Implementation Cost (1-10)<input id="gov-cost" type="number" min="1" max="10" value="5" /></label>
+          </div>
+          <div class="split" style="margin-top: 0.6rem">
+            <label>Community Impact (1-10)<input id="gov-community" type="number" min="1" max="10" value="8" /></label>
+            <label>Security Risk (1-10)<input id="gov-security" type="number" min="1" max="10" value="4" /></label>
+          </div>
+          <div style="margin-top: 0.6rem; display: flex; gap: 0.6rem; align-items: center">
+            <button id="gov-submit-btn" type="button">Submit for Decision</button>
+            <span id="gov-status" class="small muted">Idle</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Recent Governance Decisions</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Proposal</th>
+                <th>Decision</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody id="decision-table">
+              {% for row in decisions %}
+              <tr>
+                <td>{{ row.proposal_id }}</td>
+                <td class="{% if row.decision == 'reject' %}bad{% elif row.decision == 'approve_with_conditions' %}warn{% else %}ok{% endif %}">
+                  {{ row.decision }}
+                </td>
+                <td>{{ row.risk_score }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </article>
       </section>
     </main>
+
+    <script>
+      async function getJson(url, options) {
+        const response = await fetch(url, options || {});
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || "Request failed");
+        }
+        return response.json();
+      }
+
+      function rowsHtml(rows, cols) {
+        if (!rows || rows.length === 0) {
+          return `<tr><td colspan="${cols}" class="muted">No data</td></tr>`;
+        }
+        return rows.join("");
+      }
+
+      async function refreshSummary() {
+        const data = await getJson("/api/summary");
+        document.getElementById("kpi-observations").textContent = data.total_observations ?? 0;
+        document.getElementById("kpi-subjects").textContent = data.subjects ?? 0;
+        document.getElementById("kpi-quality").textContent = data.avg_quality ?? "n/a";
+
+        document.getElementById("manufacturer-table").innerHTML = rowsHtml(
+          (data.manufacturers || []).map((row) => `<tr><td>${row.manufacturer}</td><td>${row.c}</td></tr>`),
+          2
+        );
+        document.getElementById("metric-table").innerHTML = rowsHtml(
+          (data.metric_mix || []).map((row) => `<tr><td>${row.metric_code}</td><td>${row.c}</td></tr>`),
+          2
+        );
+        document.getElementById("run-status-table").innerHTML = rowsHtml(
+          (data.normalization_runs || []).map((row) => `<tr><td>${row.status}</td><td>${row.c}</td></tr>`),
+          2
+        );
+        document.getElementById("failed-queue-table").innerHTML = rowsHtml(
+          (data.failed_queue || []).map((row) => `<tr><td>${row.replay_status}</td><td>${row.c}</td></tr>`),
+          2
+        );
+      }
+
+      async function refreshHealth() {
+        const payload = await getJson("/api/health-summary");
+        document.getElementById("health-summary").textContent = `${payload.up}/${payload.total} services up`;
+        const rows = Object.entries(payload.checks || {}).map(([name, status]) => {
+          const ok = status && status.status === "ok";
+          const cls = ok ? "status-pill" : "status-pill down";
+          return `<tr><td>${name}</td><td><span class="${cls}">${ok ? "ok" : "down"}</span></td></tr>`;
+        });
+        document.getElementById("health-table").innerHTML = rowsHtml(rows, 2);
+      }
+
+      async function refreshRisk() {
+        const rows = await getJson("/api/cohort-top-risk?limit=10");
+        document.getElementById("risk-table").innerHTML = rowsHtml(
+          (rows || []).map((row) => `<tr><td>${row.subject_id}</td><td>${row.avg_glucose ?? "n/a"}</td><td>${row.avg_stress ?? "n/a"}</td><td>${row.avg_recovery ?? "n/a"}</td></tr>`),
+          4
+        );
+      }
+
+      async function refreshDecisions() {
+        const rows = await getJson("/api/governance-decisions");
+        document.getElementById("decision-table").innerHTML = rowsHtml(
+          (rows || []).map((row) => {
+            const css = row.decision === "reject" ? "bad" : row.decision === "approve_with_conditions" ? "warn" : "ok";
+            return `<tr><td>${row.proposal_id}</td><td class="${css}">${row.decision}</td><td>${row.risk_score}</td></tr>`;
+          }),
+          3
+        );
+      }
+
+      async function runSimulation() {
+        const statusEl = document.getElementById("run-demo-status");
+        statusEl.textContent = "Starting...";
+        try {
+          const subjects = Number(document.getElementById("run-subjects").value || 2);
+          const days = Number(document.getElementById("run-days").value || 7);
+          const profile = document.getElementById("run-profile").value || "healthy";
+          const payload = { subjects, days, profile };
+          const data = await getJson("/api/run-simulation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          statusEl.textContent = `Started run ${data.run_id}`;
+          setTimeout(async () => {
+            await refreshSummary();
+            await refreshRisk();
+          }, 6000);
+        } catch (error) {
+          statusEl.textContent = `Failed: ${error.message}`;
+        }
+      }
+
+      async function submitGovernance() {
+        const statusEl = document.getElementById("gov-status");
+        statusEl.textContent = "Submitting...";
+        try {
+          const payload = {
+            proposal_id: document.getElementById("gov-proposal-id").value,
+            proposal_type: document.getElementById("gov-proposal-type").value,
+            summary: document.getElementById("gov-summary").value,
+            impact_scope: document.getElementById("gov-impact-scope").value,
+            adoption_benefit: Number(document.getElementById("gov-adoption").value || 7),
+            implementation_cost: Number(document.getElementById("gov-cost").value || 5),
+            community_impact: Number(document.getElementById("gov-community").value || 7),
+            security_risk: Number(document.getElementById("gov-security").value || 4),
+            backward_compatible: document.getElementById("gov-backward-compatible").value === "true"
+          };
+          const decision = await getJson("/api/governance-review", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          statusEl.textContent = `Decision: ${decision.decision} (risk ${decision.risk_score})`;
+          await refreshDecisions();
+        } catch (error) {
+          statusEl.textContent = `Failed: ${error.message}`;
+        }
+      }
+
+      document.getElementById("run-demo-btn").addEventListener("click", runSimulation);
+      document.getElementById("gov-submit-btn").addEventListener("click", submitGovernance);
+
+      async function refreshAll() {
+        try { await refreshSummary(); } catch (_) {}
+        try { await refreshHealth(); } catch (_) {}
+        try { await refreshRisk(); } catch (_) {}
+        try { await refreshDecisions(); } catch (_) {}
+      }
+
+      refreshAll();
+      setInterval(refreshAll, 20000);
+    </script>
   </body>
 </html>

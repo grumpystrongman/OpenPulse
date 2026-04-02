@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import runpy
+import sys
 from pathlib import Path
 
 SERVICES = {
@@ -16,6 +17,11 @@ SERVICES = {
 
 
 def main() -> None:
+    root = Path(".").resolve()
+    sys.path.insert(0, str(root))
+    sys.path.insert(0, str(root / "packages" / "openpulse_core"))
+    sys.path.insert(0, str(root / "packages" / "openpulse_data"))
+
     output_dir = Path("generated/openapi")
     output_dir.mkdir(parents=True, exist_ok=True)
 

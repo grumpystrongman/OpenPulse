@@ -5,12 +5,19 @@ import os
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import ORJSONResponse, PlainTextResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from openpulse_data.clickhouse import insert_rows, query
+from openpulse_core.security import (
+    require_role,
+    sql_quote,
+    validate_consent_id,
+    validate_scope,
+    validate_subject_id,
+)
 
 app = FastAPI(
     title="OpenPulse Consent Identity Service",
@@ -24,13 +31,17 @@ SALT = os.getenv("PSEUDONYMIZATION_SALT", "openpulse-dev-salt")
 
 class SubjectCreate(BaseModel):
     subject_id: str
-    attributes: dict = {}
+    attributes: dict = Field(default_factory=dict)
 
 
 class ConsentCreate(BaseModel):
     subject_id: str
     scope: str
     expires_at: datetime | None = None
+
+
+SubjectCreate.model_rebuild()
+ConsentCreate.model_rebuild()
 
 
 @app.get("/health")
@@ -44,32 +55,35 @@ def metrics() -> PlainTextResponse:
 
 
 @app.post("/v1/subjects")
-def create_subject(payload: SubjectCreate) -> dict:
-    pseudonym = hashlib.sha256(f"{SALT}:{payload.subject_id}".encode("utf-8")).hexdigest()
+def create_subject(payload: SubjectCreate, _auth: object = Depends(require_role("admin"))) -> dict:
+    subject_id = validate_subject_id(payload.subject_id)
+    pseudonym = hashlib.sha256(f"{SALT}:{subject_id}".encode("utf-8")).hexdigest()
     insert_rows(
         "subject",
         [
             {
-                "subject_id": payload.subject_id,
+                "subject_id": subject_id,
                 "pseudonym_id": pseudonym,
                 "created_at": datetime.now(tz=timezone.utc),
                 "attributes_json": str(payload.attributes),
             }
         ],
     )
-    return {"subject_id": payload.subject_id, "pseudonym_id": pseudonym}
+    return {"subject_id": subject_id, "pseudonym_id": pseudonym}
 
 
 @app.post("/v1/consents")
-def create_consent(payload: ConsentCreate) -> dict:
+def create_consent(payload: ConsentCreate, _auth: object = Depends(require_role("admin"))) -> dict:
+    subject_id = validate_subject_id(payload.subject_id)
+    scope = validate_scope(payload.scope)
     consent_id = uuid4().hex
     insert_rows(
         "consent",
         [
             {
                 "consent_id": consent_id,
-                "subject_id": payload.subject_id,
-                "scope": payload.scope,
+                "subject_id": subject_id,
+                "scope": scope,
                 "status": "granted",
                 "granted_at": datetime.now(tz=timezone.utc),
                 "revoked_at": None,
@@ -83,8 +97,11 @@ def create_consent(payload: ConsentCreate) -> dict:
 
 
 @app.post("/v1/consents/{consent_id}/revoke")
-def revoke_consent(consent_id: str) -> dict:
-    rows = query(f"SELECT consent_id, subject_id, scope FROM openpulse.consent WHERE consent_id = '{consent_id}' LIMIT 1")
+def revoke_consent(consent_id: str, _auth: object = Depends(require_role("admin"))) -> dict:
+    consent_id = validate_consent_id(consent_id)
+    rows = query(
+        f"SELECT consent_id, subject_id, scope FROM openpulse.consent WHERE consent_id = '{sql_quote(consent_id)}' LIMIT 1"
+    )
     if not rows:
         raise HTTPException(status_code=404, detail="Consent not found")
     record = rows[0]
@@ -108,11 +125,13 @@ def revoke_consent(consent_id: str) -> dict:
 
 
 @app.get("/v1/consents/check/{subject_id}")
-def check_consent(subject_id: str, scope: str) -> dict:
+def check_consent(subject_id: str, scope: str, _auth: object = Depends(require_role("integration"))) -> dict:
+    subject_id = validate_subject_id(subject_id)
+    scope = validate_scope(scope)
     sql = f"""
         SELECT status, expires_at, max(granted_at) AS granted_at
         FROM openpulse.consent
-        WHERE subject_id = '{subject_id}' AND scope = '{scope}'
+        WHERE subject_id = '{sql_quote(subject_id)}' AND scope = '{sql_quote(scope)}'
         GROUP BY status, expires_at
         ORDER BY granted_at DESC
         LIMIT 1

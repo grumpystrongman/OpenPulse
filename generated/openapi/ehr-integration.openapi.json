@@ -67,6 +67,38 @@
               "default": 500,
               "title": "Limit"
             }
+          },
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
+            }
           }
         ],
         "responses": {
@@ -130,6 +162,38 @@
               "type": "integer",
               "default": 30,
               "title": "Days"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
             }
           }
         ],

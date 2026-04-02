@@ -81,20 +81,21 @@ services:
       - "6379:6379"
 
   ingestion-gateway:
-    build: .
-    env_file: .env.example
+    build: . 
+    env_file: .env
     working_dir: /app/services/ingestion-gateway
     command: uvicorn app.main:app --host 0.0.0.0 --port 8001
     ports:
       - "8001:8001"
     depends_on:
+      - consent-identity-service
       - redpanda
       - redpanda-init
       - redis
 
   connector-service:
     build: .
-    env_file: .env.example
+    env_file: .env
     working_dir: /app/services/connector-service
     command: uvicorn app.main:app --host 0.0.0.0 --port 8002
     ports:
@@ -104,7 +105,7 @@ services:
 
   normalization-service:
     build: .
-    env_file: .env.example
+    env_file: .env
     working_dir: /app/services/normalization-service
     command: python -m app.worker
     depends_on:
@@ -115,7 +116,7 @@ services:
 
   query-api:
     build: .
-    env_file: .env.example
+    env_file: .env
     working_dir: /app/services/query-api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8003
     ports:
@@ -125,7 +126,7 @@ services:
 
   consent-identity-service:
     build: .
-    env_file: .env.example
+    env_file: .env
     working_dir: /app/services/consent-identity-service
     command: uvicorn app.main:app --host 0.0.0.0 --port 8004
     ports:
@@ -135,7 +136,7 @@ services:
 
   governance-agent:
     build: .
-    env_file: .env.example
+    env_file: .env
     working_dir: /app/services/governance-agent
     command: uvicorn app.main:app --host 0.0.0.0 --port 8005
     ports:
@@ -143,7 +144,7 @@ services:
 
   ehr-integration:
     build: .
-    env_file: .env.example
+    env_file: .env
     working_dir: /app/services/ehr-integration
     command: uvicorn app.main:app --host 0.0.0.0 --port 8006
     ports:
@@ -153,7 +154,7 @@ services:
 
   ops-console:
     build: .
-    env_file: .env.example
+    env_file: .env
     working_dir: /app/services/ops-console
     command: uvicorn app.main:app --host 0.0.0.0 --port 8007
     ports:
@@ -161,6 +162,7 @@ services:
     depends_on:
       - query-api
       - governance-agent
+      - connector-service
 
   prometheus:
     image: prom/prometheus:v2.54.1

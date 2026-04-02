@@ -1,66 +1,119 @@
 # OpenPulse Standard
 
-OpenPulse Standard is an open protocol + reference implementation for ingesting heterogeneous wearable/sensor data into a canonical open schema and local analytics platform.
+OpenPulse Standard is an open data standard and reference platform for wearable and sensor data.
+
+It gives manufacturers, health systems, analytics teams, and software vendors a practical way to move data from fragmented device ecosystems into one normalized model that is easy to query, govern, and integrate.
+
+## What problem this solves
+Today, every wearable integration becomes its own project:
+- different APIs
+- different units
+- different timestamp behavior
+- different consent models
+- different data quality issues
+- different downstream mappings into analytics and clinical workflows
+
+OpenPulse reduces that repeated work.
+
+Instead of building a custom pipeline for every new device or manufacturer, teams can ingest data once, normalize it into a common model, preserve source provenance, and make it available for analytics, monitoring, and EHR export.
+
+## Why adopt now
+- Wearable data volume is growing faster than most integration teams can support.
+- Health systems need a safer way to separate raw device data from what belongs in the clinical record.
+- Manufacturers need a lower-friction path into provider and analytics ecosystems.
+- AI and analytics teams need clean, longitudinal, queryable data instead of vendor-specific payloads.
+
+OpenPulse gives all four groups a shared foundation.
+
+## What you can run today
+This repo already runs a working local platform with:
+- ingestion APIs
+- manufacturer simulators for Apple HealthKit, Android Health Connect, Fitbit, Garmin, Oura, WHOOP, Withings, and Dexcom
+- normalization into the OpenPulse model
+- raw payload lineage storage
+- ClickHouse analytics tables and views
+- SQL query APIs
+- FHIR-aligned export APIs
+- governance workflows
+- monitoring dashboards
+- a live web demo surface
+
+## Time to value
+A technically capable team can get value from OpenPulse quickly.
+
+In the current reference implementation you can:
+1. start the full stack locally
+2. ingest realistic data from all required ecosystems
+3. inspect normalized records and lineage
+4. run SQL queries over the canonical model
+5. review a web demo for operators and stakeholders
+
+That means you can validate the standard, the warehouse model, the API layer, and the demo workflow before committing to a large integration program.
+
+## What makes OpenPulse commercially viable
+OpenPulse is designed to be useful in real buying and implementation cycles, not just in architecture diagrams.
+
+It is built to:
+- lower integration cost across manufacturers
+- preserve manufacturer-specific value through controlled extensions
+- support local deployment and data ownership
+- provide clean handoffs to analytics and AI teams
+- support health-system governance and consent enforcement
+- align with FHIR for export without forcing FHIR complexity into the core ingest pipeline
 
 ## Why this stack
-- **Backend/services**: Python + FastAPI for maintainable API-heavy services and rapid adapter implementation.
-- **Streaming**: Redpanda (Kafka API compatible) for local-first stream processing with minimal ops overhead.
-- **Warehouse**: ClickHouse for high-performance time-series + analytical SQL at local developer scale and commercial viability.
-- **Bronze object storage**: MinIO S3-compatible bucket for immutable source payload lineage.
-- **Observability**: Prometheus + Grafana dashboards.
+- **Backend/services**: Python + FastAPI for maintainable APIs and fast adapter delivery.
+- **Streaming**: Redpanda for Kafka-compatible ingestion without heavy local ops overhead.
+- **Warehouse**: ClickHouse for fast time-series and analytical SQL.
+- **Bronze storage**: MinIO for immutable raw payload retention and lineage.
+- **Observability**: Prometheus + Grafana for service and pipeline visibility.
 
-## Architecture domains
-- `standards/`: canonical schemas, taxonomy, mapping docs.
-- `services/ingestion-gateway`: auth, idempotency, rate limiting, ingest API.
-- `services/connector-service`: manufacturer adapters + synthetic generators.
-- `services/normalization-service`: transform/validate/enrich/provenance.
-- `services/consent-identity-service`: consent and pseudonymization.
-- `services/query-api`: operator analytics API + cohort endpoints.
-- `services/ehr-integration`: FHIR-aligned export patterns.
-- `services/governance-agent`: `openpulse-governor-jeff` policy engine.
-- `services/ops-console`: operations dashboard.
-- `data-platform/`: ClickHouse DDL, bronze/silver/gold model definitions.
-- `observability/`: Prometheus + Grafana provisioning.
-- `k8s/`: Kubernetes deployment path.
+## Architecture
+- `standards/`: canonical schemas, taxonomy, mappings, compatibility policy
+- `services/ingestion-gateway`: ingest, idempotency, rate limiting
+- `services/connector-service`: adapters and synthetic generators
+- `services/normalization-service`: normalization, provenance, quality scoring
+- `services/consent-identity-service`: consent and pseudonymization
+- `services/query-api`: operator and analytics access
+- `services/ehr-integration`: FHIR-aligned exports and bulk export patterns
+- `services/governance-agent`: policy-based approval engine
+- `services/ops-console`: operator-facing demo and admin surface
+- `data-platform/`: warehouse DDL, marts, lineage-ready structures
+- `observability/`: dashboards and metrics config
+- `k8s/`: Kubernetes deployment path
 
-## Quickstart (Docker Desktop)
+## Quickstart
+### Docker Desktop
 ```powershell
-cp .env.example .env
+Copy-Item .env.example .env
 ./scripts/bootstrap.ps1
 ```
 
-Endpoints:
-- Ingestion: `http://localhost:8001`
-- Connectors/simulators: `http://localhost:8002`
-- Query API: `http://localhost:8003`
-- Consent/identity: `http://localhost:8004`
-- Governor Jeff: `http://localhost:8005`
-- EHR integration: `http://localhost:8006`
-- Ops console: `http://localhost:8007`
-- Grafana: `http://localhost:3000` (admin/admin)
-- Prometheus: `http://localhost:9090`
-
-## Quickstart (No Docker Desktop License / WSL Docker Engine)
-This path uses open-source Docker Engine inside Ubuntu WSL2, no Docker Desktop sign-in required.
-
+### WSL Docker Engine, no Docker Desktop sign-in
 ```powershell
 Copy-Item .env.example .env
 ./scripts/openpulse-up-wsl.ps1
 ./scripts/openpulse-status-wsl.ps1
 ```
 
-Use the WSL IP printed by `openpulse-up-wsl.ps1` (for example `http://172.x.x.x:8007`).
+The WSL-based path uses open-source Docker Engine inside Ubuntu WSL2.
 
-## Thin vertical slice (implemented)
-1. `connector-service` synthetic Fitbit/Apple/Garmin/... payload generation.
-2. `ingestion-gateway` envelope + idempotency + Kafka publish.
-3. `normalization-service` canonical mapping + quality/provenance + bronze/silver load.
-4. `query-api` SQL/cohort/timeline retrieval.
-5. `ops-console` visibility and governance decisions.
-6. End-to-end test scenario included under `tests/e2e`.
+## Endpoints
+### Docker Desktop mode
+- Ingestion: `http://localhost:8001`
+- Connectors: `http://localhost:8002`
+- Query API: `http://localhost:8003`
+- Consent: `http://localhost:8004`
+- Governor Jeff: `http://localhost:8005`
+- EHR integration: `http://localhost:8006`
+- Ops console: `http://localhost:8007`
+- Grafana: `http://localhost:3000`
+- Prometheus: `http://localhost:9090`
 
-## SQL self-service
-Use ClickHouse directly:
+### WSL Docker Engine mode
+Use the IP printed by `./scripts/openpulse-up-wsl.ps1`.
+
+## Example query
 ```sql
 SELECT subject_id, metric_code, avg(value) AS avg_value
 FROM openpulse.observation
@@ -68,18 +121,16 @@ GROUP BY subject_id, metric_code
 ORDER BY subject_id, metric_code;
 ```
 
-## Branching and release strategy
-- `main`: always releasable.
-- `release/x.y`: stabilization branches.
-- feature branches: `feat/<domain>-<short-name>`.
-- tags: `vX.Y.Z`.
-- release checklist documented in `docs/release-notes.md`.
+## Who this is for
+- device manufacturers that want easier enterprise adoption
+- health systems that need a safer wearable-data ingestion model
+- digital health vendors building multi-device products
+- analytics teams building cohort, quality, and longitudinal models
+- AI teams that need normalized feature-ready data
 
-## License recommendation
-- Spec/docs: CC BY 4.0.
-- Reference implementation code: Apache-2.0.
+## Licensing
+- Spec/docs: CC BY 4.0
+- Reference implementation code: Apache-2.0
 
 ## Current status
-- Working local stack and canonical pipeline implemented.
-- Manufacturer simulators implemented for all required ecosystems.
-- Governance, mapping matrix, FHIR export, observability, and conformance tests included.
+The current repo includes a working local reference implementation with real services, real tests, real schemas, and a functioning demo path. It is not just a placeholder project.

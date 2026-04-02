@@ -51,11 +51,346 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "title": "Response Dashboard  Get"
+                }
               }
             }
           }
         }
+      }
+    },
+    "/api/health-summary": {
+      "get": {
+        "summary": "Health Summary",
+        "operationId": "health_summary_api_health_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Summary Api Health Summary Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/summary": {
+      "get": {
+        "summary": "Summary",
+        "operationId": "summary_api_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Summary Api Summary Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cohort-top-risk": {
+      "get": {
+        "summary": "Cohort Top Risk",
+        "operationId": "cohort_top_risk_api_cohort_top_risk_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Cohort Top Risk Api Cohort Top Risk Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/governance-decisions": {
+      "get": {
+        "summary": "Governance Decisions",
+        "operationId": "governance_decisions_api_governance_decisions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Governance Decisions Api Governance Decisions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/run-simulation": {
+      "post": {
+        "summary": "Run Simulation",
+        "operationId": "run_simulation_api_run_simulation_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Run Simulation Api Run Simulation Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/governance-review": {
+      "post": {
+        "summary": "Governance Review",
+        "operationId": "governance_review_api_governance_review_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GovernanceReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Governance Review Api Governance Review Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DemoRunRequest": {
+        "properties": {
+          "subjects": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Subjects",
+            "default": 2
+          },
+          "days": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Days",
+            "default": 7
+          },
+          "profile": {
+            "type": "string",
+            "pattern": "^(healthy|athletic|at_risk|chronic)$",
+            "title": "Profile",
+            "default": "healthy"
+          }
+        },
+        "type": "object",
+        "title": "DemoRunRequest"
+      },
+      "GovernanceReviewRequest": {
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 3,
+            "title": "Proposal Id"
+          },
+          "proposal_type": {
+            "type": "string",
+            "pattern": "^(schema_change|roadmap_change|breaking_change|connector_priority|release)$",
+            "title": "Proposal Type"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 10,
+            "title": "Summary"
+          },
+          "impact_scope": {
+            "type": "string",
+            "pattern": "^(low|medium|high)$",
+            "title": "Impact Scope"
+          },
+          "adoption_benefit": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Adoption Benefit",
+            "default": 7
+          },
+          "implementation_cost": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Implementation Cost",
+            "default": 5
+          },
+          "community_impact": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Community Impact",
+            "default": 7
+          },
+          "security_risk": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Security Risk",
+            "default": 4
+          },
+          "backward_compatible": {
+            "type": "boolean",
+            "title": "Backward Compatible",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "proposal_id",
+          "proposal_type",
+          "summary",
+          "impact_scope"
+        ],
+        "title": "GovernanceReviewRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
       }
     }
   }

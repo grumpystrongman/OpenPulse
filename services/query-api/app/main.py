@@ -3,11 +3,20 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query
+from dateutil import parser as dateparser
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.responses import ORJSONResponse, PlainTextResponse
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from openpulse_data.clickhouse import query
+from openpulse_core.security import (
+    clamp_int,
+    require_role,
+    sanitize_select_sql,
+    sql_quote,
+    validate_metric_code,
+    validate_subject_id,
+)
 
 app = FastAPI(
     title="OpenPulse Query API",
@@ -32,12 +41,14 @@ def observations(
     subject_id: str | None = Query(default=None),
     metric_code: str | None = Query(default=None),
     limit: int = Query(default=200, ge=1, le=5000),
+    _auth: Any = Depends(require_role("analyst")),
 ) -> list[dict[str, Any]]:
     conditions = ["1=1"]
     if subject_id:
-        conditions.append(f"subject_id = '{subject_id}'")
+        conditions.append(f"subject_id = '{sql_quote(validate_subject_id(subject_id))}'")
     if metric_code:
-        conditions.append(f"metric_code = '{metric_code}'")
+        conditions.append(f"metric_code = '{sql_quote(validate_metric_code(metric_code))}'")
+    limit = clamp_int(limit, minimum=1, maximum=5000, field_name="limit")
     sql = f"""
         SELECT *
         FROM openpulse.observation
@@ -49,20 +60,34 @@ def observations(
 
 
 @app.get("/v1/timeline/{subject_id}")
-def timeline(subject_id: str, from_date: str, to_date: str) -> list[dict[str, Any]]:
+def timeline(
+    subject_id: str,
+    from_date: str,
+    to_date: str,
+    _auth: Any = Depends(require_role("analyst")),
+) -> list[dict[str, Any]]:
+    subject_id = validate_subject_id(subject_id)
+    from_ts = _parse_utc(from_date)
+    to_ts = _parse_utc(to_date)
+    if to_ts < from_ts:
+        raise HTTPException(status_code=400, detail="to_date must be after from_date")
     sql = f"""
         SELECT subject_id, metric_code, event_time, value, unit, manufacturer, quality_score
         FROM openpulse.observation
-        WHERE subject_id = '{subject_id}'
-          AND event_time BETWEEN toDateTime64('{from_date}', 3, 'UTC')
-                             AND toDateTime64('{to_date}', 3, 'UTC')
+        WHERE subject_id = '{sql_quote(subject_id)}'
+          AND event_time BETWEEN toDateTime64('{from_ts.strftime("%Y-%m-%d %H:%M:%S.%f")}', 3, 'UTC')
+                             AND toDateTime64('{to_ts.strftime("%Y-%m-%d %H:%M:%S.%f")}', 3, 'UTC')
         ORDER BY event_time ASC
     """
     return query(sql)
 
 
 @app.get("/v1/cohorts/top-risk")
-def top_risk(limit: int = Query(default=50, ge=1, le=1000)) -> list[dict]:
+def top_risk(
+    limit: int = Query(default=50, ge=1, le=1000),
+    _auth: Any = Depends(require_role("analyst")),
+) -> list[dict]:
+    limit = clamp_int(limit, minimum=1, maximum=1000, field_name="limit")
     sql = f"""
         SELECT
           subject_id,
@@ -79,10 +104,15 @@ def top_risk(limit: int = Query(default=50, ge=1, le=1000)) -> list[dict]:
 
 
 @app.post("/v1/sql")
-def ad_hoc_sql(payload: dict[str, str]) -> dict:
+def ad_hoc_sql(payload: dict[str, str], _auth: Any = Depends(require_role("operator"))) -> dict:
     sql = payload.get("sql", "").strip()
-    if not sql.lower().startswith("select"):
-        raise HTTPException(status_code=400, detail="Only SELECT statements are allowed")
-    if ";" in sql.rstrip(";"):
-        raise HTTPException(status_code=400, detail="Multiple statements are not allowed")
-    return {"rows": query(sql)}
+    safe_sql = sanitize_select_sql(sql, max_rows=5000)
+    return {"rows": query(safe_sql)}
+
+
+def _parse_utc(value: str) -> datetime:
+    try:
+        parsed = dateparser.isoparse(value).astimezone(timezone.utc)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=f"Invalid datetime: {value}") from exc
+    return parsed

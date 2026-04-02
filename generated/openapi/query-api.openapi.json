@@ -90,6 +90,38 @@
               "default": 200,
               "title": "Limit"
             }
+          },
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
+            }
           }
         ],
         "responses": {
@@ -152,6 +184,38 @@
               "type": "string",
               "title": "To Date"
             }
+          },
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
+            }
           }
         ],
         "responses": {
@@ -199,6 +263,38 @@
               "default": 50,
               "title": "Limit"
             }
+          },
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
+            }
           }
         ],
         "responses": {
@@ -234,19 +330,53 @@
       "post": {
         "summary": "Ad Hoc Sql",
         "operationId": "ad_hoc_sql_v1_sql_post",
+        "parameters": [
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
+                "type": "object",
                 "additionalProperties": {
                   "type": "string"
                 },
-                "type": "object",
                 "title": "Payload"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -254,8 +384,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
+                  "additionalProperties": true,
                   "title": "Response Ad Hoc Sql V1 Sql Post"
                 }
               }

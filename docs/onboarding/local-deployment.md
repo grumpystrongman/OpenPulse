@@ -41,11 +41,24 @@ Copy-Item .env.example .env
 ## Query data quickly
 ### Option A
 ```powershell
-Invoke-RestMethod -Method Get -Uri "http://localhost:8003/v1/observations?limit=20"
+$headers = @{
+  "X-OpenPulse-Role" = "analyst"
+  "X-OpenPulse-Token" = "openpulse-local-token"
+}
+Invoke-RestMethod -Method Get -Headers $headers -Uri "http://localhost:8003/v1/observations?limit=20"
 ```
 
 ### Option B
 ```powershell
 $wslIp = (wsl -d Ubuntu -- hostname -I).Trim().Split(' ')[0]
-Invoke-RestMethod -Method Get -Uri "http://$wslIp`:8003/v1/observations?limit=20"
+$headers = @{
+  "X-OpenPulse-Role" = "analyst"
+  "X-OpenPulse-Token" = "openpulse-local-token"
+}
+Invoke-RestMethod -Method Get -Headers $headers -Uri "http://$wslIp`:8003/v1/observations?limit=20"
 ```
+
+## API auth defaults
+- OpenPulse API role checks are enabled by default in `.env`.
+- Default local token: `openpulse-local-token`.
+- Valid roles: `analyst`, `integration`, `operator`, `admin`.

@@ -38,3 +38,16 @@ JOIN openpulse.observation o ON qa.observation_id = o.observation_id
 GROUP BY metric_code
 ORDER BY avg_quality DESC;
 ```
+
+## Query API call (with auth headers)
+```powershell
+$headers = @{
+  "X-OpenPulse-Role" = "operator"
+  "X-OpenPulse-Token" = "openpulse-local-token"
+}
+Invoke-RestMethod -Method Post `
+  -Uri "http://localhost:8003/v1/sql" `
+  -Headers $headers `
+  -ContentType "application/json" `
+  -Body '{"sql":"SELECT manufacturer,count() AS c FROM openpulse.observation GROUP BY manufacturer ORDER BY c DESC"}'
+```

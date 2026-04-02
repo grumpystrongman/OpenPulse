@@ -46,15 +46,49 @@
       "post": {
         "summary": "Create Subject",
         "operationId": "create_subject_v1_subjects_post",
+        "parameters": [
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/SubjectCreate"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -62,8 +96,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
+                  "additionalProperties": true,
                   "title": "Response Create Subject V1 Subjects Post"
                 }
               }
@@ -86,15 +120,49 @@
       "post": {
         "summary": "Create Consent",
         "operationId": "create_consent_v1_consents_post",
+        "parameters": [
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ConsentCreate"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -102,8 +170,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
+                  "additionalProperties": true,
                   "title": "Response Create Consent V1 Consents Post"
                 }
               }
@@ -134,6 +202,38 @@
             "schema": {
               "type": "string",
               "title": "Consent Id"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
             }
           }
         ],
@@ -184,6 +284,38 @@
             "schema": {
               "type": "string",
               "title": "Scope"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Role"
+            }
+          },
+          {
+            "name": "X-OpenPulse-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Openpulse-Token"
             }
           }
         ],
@@ -268,8 +400,7 @@
           "attributes": {
             "additionalProperties": true,
             "type": "object",
-            "title": "Attributes",
-            "default": {}
+            "title": "Attributes"
           }
         },
         "type": "object",

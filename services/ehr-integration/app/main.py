@@ -3,11 +3,12 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import FastAPI, Query
+from fastapi import Depends, FastAPI, Query
 from fastapi.responses import ORJSONResponse, PlainTextResponse
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from openpulse_data.clickhouse import query
+from openpulse_core.security import clamp_int, require_role, sql_quote, validate_metric_code, validate_subject_id
 
 LOINC_MAP = {
     "heart_rate": "8867-4",
@@ -42,12 +43,15 @@ def metrics() -> PlainTextResponse:
 def export_fhir_observations(
     subject_id: str,
     limit: int = Query(default=500, ge=1, le=5000),
+    _auth: Any = Depends(require_role("integration")),
 ) -> dict[str, list[dict[str, Any]]]:
+    subject_id = validate_subject_id(subject_id)
+    limit = clamp_int(limit, minimum=1, maximum=5000, field_name="limit")
     rows = query(
         f"""
         SELECT observation_id, metric_code, metric_display, value, unit, event_time, manufacturer, quality_score
         FROM openpulse.observation
-        WHERE subject_id = '{subject_id}'
+        WHERE subject_id = '{sql_quote(subject_id)}'
         ORDER BY event_time DESC
         LIMIT {limit}
         """
@@ -57,8 +61,9 @@ def export_fhir_observations(
 
 
 @app.get("/v1/export/bulk")
-def bulk_export(metric_code: str | None = None, days: int = 30) -> dict:
-    predicate = "1=1" if not metric_code else f"metric_code = '{metric_code}'"
+def bulk_export(metric_code: str | None = None, days: int = 30, _auth: Any = Depends(require_role("analyst"))) -> dict:
+    days = clamp_int(days, minimum=1, maximum=365, field_name="days")
+    predicate = "1=1" if not metric_code else f"metric_code = '{sql_quote(validate_metric_code(metric_code))}'"
     rows = query(
         f"""
         SELECT subject_id, metric_code, event_time, value, unit, manufacturer, observation_id
