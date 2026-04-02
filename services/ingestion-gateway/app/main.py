@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from hashlib import sha256
 from uuid import uuid4
@@ -108,6 +109,7 @@ def ingest(
 
 
 def _rate_limit(client_id: str, limit: int = 240) -> None:
+    limit = int(os.getenv("OPENPULSE_INGEST_RATE_LIMIT_PER_MIN", "20000"))
     key = f"rate:{client_id}:{datetime.now(tz=timezone.utc):%Y%m%d%H%M}"
     current = redis_client.incr(key)
     if current == 1:

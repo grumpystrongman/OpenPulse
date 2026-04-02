@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     clickhouse_host: str = "localhost"
     clickhouse_port: int = 8123
     clickhouse_user: str = "default"
-    clickhouse_password: str = ""
+    clickhouse_password: str = "openpulse"
     clickhouse_database: str = "openpulse"
 
     minio_endpoint: str = "localhost:9000"

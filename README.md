@@ -23,7 +23,7 @@ OpenPulse Standard is an open protocol + reference implementation for ingesting 
 - `observability/`: Prometheus + Grafana provisioning.
 - `k8s/`: Kubernetes deployment path.
 
-## Quickstart
+## Quickstart (Docker Desktop)
 ```powershell
 cp .env.example .env
 ./scripts/bootstrap.ps1
@@ -39,6 +39,17 @@ Endpoints:
 - Ops console: `http://localhost:8007`
 - Grafana: `http://localhost:3000` (admin/admin)
 - Prometheus: `http://localhost:9090`
+
+## Quickstart (No Docker Desktop License / WSL Docker Engine)
+This path uses open-source Docker Engine inside Ubuntu WSL2, no Docker Desktop sign-in required.
+
+```powershell
+Copy-Item .env.example .env
+./scripts/openpulse-up-wsl.ps1
+./scripts/openpulse-status-wsl.ps1
+```
+
+Use the WSL IP printed by `openpulse-up-wsl.ps1` (for example `http://172.x.x.x:8007`).
 
 ## Thin vertical slice (implemented)
 1. `connector-service` synthetic Fitbit/Apple/Garmin/... payload generation.

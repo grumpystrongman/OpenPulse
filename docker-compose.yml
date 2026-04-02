@@ -26,16 +26,30 @@ services:
       - "19092:19092"
       - "19644:9644"
 
+  redpanda-init:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.7
+    depends_on:
+      - redpanda
+    entrypoint: >
+      /bin/sh -c "
+      until rpk cluster info -X brokers=redpanda:9092; do sleep 2; done;
+      rpk topic create openpulse.raw.ingest -p 3 -r 1 -X brokers=redpanda:9092 || true;
+      rpk topic create openpulse.normalized.observation -p 3 -r 1 -X brokers=redpanda:9092 || true;
+      exit 0;
+      "
+
   clickhouse:
     image: clickhouse/clickhouse-server:24.8
     environment:
       CLICKHOUSE_DB: openpulse
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-openpulse}
     volumes:
       - ./data-platform/clickhouse/init:/docker-entrypoint-initdb.d
       - clickhouse_data:/var/lib/clickhouse
     ports:
       - "8123:8123"
-      - "9000:9000"
+      - "9002:9000"
 
   minio:
     image: minio/minio:RELEASE.2024-09-13T20-26-02Z
@@ -75,6 +89,7 @@ services:
       - "8001:8001"
     depends_on:
       - redpanda
+      - redpanda-init
       - redis
 
   connector-service:
@@ -94,6 +109,7 @@ services:
     command: python -m app.worker
     depends_on:
       - redpanda
+      - redpanda-init
       - clickhouse
       - minio
 

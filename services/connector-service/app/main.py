@@ -68,7 +68,7 @@ async def simulate(
     return {"status": "started", "run_id": run_id, "manufacturer": manufacturer}
 
 
-@app.post("/v1/simulate/all")
+@app.post("/v1/simulate-all")
 async def simulate_all(
     background_tasks: BackgroundTasks,
     subjects: int = Query(default=2, ge=1, le=500),
