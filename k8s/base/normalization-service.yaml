@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: normalization-service
+  namespace: openpulse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: normalization-service
+  template:
+    metadata:
+      labels:
+        app: normalization-service
+    spec:
+      containers:
+        - name: normalization-service
+          image: openpulse/standard:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: openpulse-env
+          workingDir: /app/services/normalization-service
+          command: ["sh", "-c", "python -m app.worker"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: normalization-service
+  namespace: openpulse
+spec:
+  selector:
+    app: normalization-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+

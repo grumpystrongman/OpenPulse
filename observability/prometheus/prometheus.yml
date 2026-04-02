@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: ingestion-gateway
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ingestion-gateway:8001"]
+
+  - job_name: connector-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["connector-service:8002"]
+
+  - job_name: query-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["query-api:8003"]
+
+  - job_name: consent-identity-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["consent-identity-service:8004"]
+
+  - job_name: governance-agent
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["governance-agent:8005"]
+
+  - job_name: ehr-integration
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ehr-integration:8006"]
+
+  - job_name: ops-console
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ops-console:8007"]

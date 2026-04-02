@@ -1,0 +1,33 @@
+manufacturers:
+  - name: apple_healthkit
+    auth_model: on_device_permission
+    ingestion_mode: app_relay
+    supported_metrics: [heart_rate, hrv_rmssd, sleep_duration, steps, energy_burned]
+  - name: android_health_connect
+    auth_model: android_permission
+    ingestion_mode: app_relay
+    supported_metrics: [heart_rate, sleep_duration, steps, energy_burned]
+  - name: fitbit
+    auth_model: oauth2
+    ingestion_mode: rest_plus_webhook
+    supported_metrics: [heart_rate, hrv_rmssd, sleep_duration, steps, spo2, respiratory_rate]
+  - name: garmin
+    auth_model: partner_program
+    ingestion_mode: push_or_pull
+    supported_metrics: [heart_rate, stress_score, spo2, body_battery, steps, sleep_duration]
+  - name: oura
+    auth_model: oauth2_or_pat
+    ingestion_mode: rest_polling
+    supported_metrics: [readiness_score, sleep_duration, heart_rate, hrv_rmssd, skin_temperature]
+  - name: whoop
+    auth_model: oauth2
+    ingestion_mode: rest_plus_webhook
+    supported_metrics: [recovery_score, strain_score, sleep_duration, heart_rate, hrv_rmssd]
+  - name: withings
+    auth_model: oauth2_plus_partner
+    ingestion_mode: webservice_plus_notifications
+    supported_metrics: [body_weight, body_fat_percent, blood_pressure_systolic, blood_pressure_diastolic, sleep_duration]
+  - name: dexcom
+    auth_model: oauth2
+    ingestion_mode: rest_polling
+    supported_metrics: [glucose]

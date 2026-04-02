@@ -1,0 +1,44 @@
+{
+  "id": null,
+  "uid": "openpulse-ops",
+  "title": "OpenPulse Ops",
+  "tags": ["openpulse"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Ingestion Throughput",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {"expr": "sum(rate(openpulse_ingest_total{status='accepted'}[1m])) by (manufacturer)", "legendFormat": "{{manufacturer}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Ingestion Latency p95",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [
+        {"expr": "histogram_quantile(0.95, sum(rate(openpulse_ingest_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p95"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Connector Push Accepted",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {"expr": "sum(rate(openpulse_connector_push_total{status='accepted'}[5m])) by (manufacturer)", "legendFormat": "{{manufacturer}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Connector Push Failed",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {"expr": "sum(rate(openpulse_connector_push_total{status='failed'}[5m])) by (manufacturer)", "legendFormat": "{{manufacturer}}"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"id":"whoop-sample-1","cycle_id":123,"start":"2026-03-01T06:00:00Z","recovery":{"score":71},"strain":{"score":12.3},"sleep":{"performance_pct":85,"duration_milli":25800000},"hr":{"resting":59,"hrv_rmssd_milli":52}}

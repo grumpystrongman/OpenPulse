@@ -1,0 +1,7 @@
+Invoke-RestMethod -Uri "http://localhost:8001/health"
+Invoke-RestMethod -Uri "http://localhost:8002/health"
+Invoke-RestMethod -Uri "http://localhost:8003/health"
+Invoke-RestMethod -Uri "http://localhost:8004/health"
+Invoke-RestMethod -Uri "http://localhost:8005/health"
+Invoke-RestMethod -Uri "http://localhost:8006/health"
+Invoke-RestMethod -Uri "http://localhost:8007/health"

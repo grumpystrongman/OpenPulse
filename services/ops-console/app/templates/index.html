@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenPulse Ops Console</title>
+    <style>
+      :root {
+        --bg: #f2f6f5;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #5b6472;
+        --accent: #007f5f;
+        --warn: #b45309;
+      }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top left, #d8f2eb 0%, var(--bg) 55%);
+        color: var(--text);
+      }
+      header {
+        padding: 1.5rem 2rem;
+        background: #0f172a;
+        color: #e8efff;
+      }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1rem;
+        padding: 1rem 2rem 2rem;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        padding: 1rem;
+      }
+      .status {
+        display: inline-flex;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        background: #e6f7f1;
+        color: var(--accent);
+        font-size: 0.82rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        text-align: left;
+        border-bottom: 1px solid #e8eaf0;
+        padding: 0.45rem 0.2rem;
+        font-size: 0.9rem;
+      }
+      .warn {
+        color: var(--warn);
+      }
+      .muted {
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>OpenPulse Ops Console</h1>
+      <div class="muted">Updated {{ timestamp }}</div>
+    </header>
+    <main>
+      <section class="card">
+        <h2>Service Health</h2>
+        <p>Query API: <span class="status">{{ query_health.status }}</span></p>
+        <p>Governor Jeff: <span class="status">{{ governor_health.status }}</span></p>
+        <p><a href="http://localhost:3000" target="_blank">Grafana</a> | <a href="http://localhost:9090" target="_blank">Prometheus</a></p>
+      </section>
+      <section class="card">
+        <h2>Top Risk Cohort</h2>
+        <table>
+          <thead>
+            <tr><th>Subject</th><th>Avg Glucose</th><th>Avg Stress</th><th>Avg Recovery</th></tr>
+          </thead>
+          <tbody>
+            {% for row in top_risk %}
+            <tr>
+              <td>{{ row.subject_id }}</td>
+              <td>{{ row.avg_glucose }}</td>
+              <td>{{ row.avg_stress }}</td>
+              <td>{{ row.avg_recovery }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+      <section class="card">
+        <h2>Governance Decisions</h2>
+        <table>
+          <thead>
+            <tr><th>Proposal</th><th>Decision</th><th>Risk</th><th>Rationale</th></tr>
+          </thead>
+          <tbody>
+            {% for row in decisions %}
+            <tr>
+              <td>{{ row.proposal_id }}</td>
+              <td class="{% if row.decision == 'reject' %}warn{% endif %}">{{ row.decision }}</td>
+              <td>{{ row.risk_score }}</td>
+              <td>{{ row.rationale }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>

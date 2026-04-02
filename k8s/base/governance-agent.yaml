@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: governance-agent
+  namespace: openpulse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: governance-agent
+  template:
+    metadata:
+      labels:
+        app: governance-agent
+    spec:
+      containers:
+        - name: governance-agent
+          image: openpulse/standard:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: openpulse-env
+          workingDir: /app/services/governance-agent
+          command: ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8005"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: governance-agent
+  namespace: openpulse
+spec:
+  selector:
+    app: governance-agent
+  ports:
+    - name: http
+      port: 8005
+      targetPort: 8005
+

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openpulse-env
+  namespace: openpulse
+data:
+  KAFKA_BOOTSTRAP_SERVERS: redpanda.openpulse.svc.cluster.local:9092
+  KAFKA_RAW_TOPIC: openpulse.raw.ingest
+  KAFKA_NORMALIZED_TOPIC: openpulse.normalized.observation
+  CLICKHOUSE_HOST: clickhouse.openpulse.svc.cluster.local
+  CLICKHOUSE_PORT: "8123"
+  CLICKHOUSE_USER: default
+  CLICKHOUSE_DATABASE: openpulse
+  MINIO_ENDPOINT: minio.openpulse.svc.cluster.local:9000
+  MINIO_BUCKET_BRONZE: openpulse-bronze
+  MINIO_SECURE: "false"
+  REDIS_HOST: redis.openpulse.svc.cluster.local
+  REDIS_PORT: "6379"
+  PSEUDONYMIZATION_SALT: openpulse-k8s-salt

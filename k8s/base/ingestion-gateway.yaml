@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingestion-gateway
+  namespace: openpulse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingestion-gateway
+  template:
+    metadata:
+      labels:
+        app: ingestion-gateway
+    spec:
+      containers:
+        - name: ingestion-gateway
+          image: openpulse/standard:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: openpulse-env
+          workingDir: /app/services/ingestion-gateway
+          command: ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8001"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingestion-gateway
+  namespace: openpulse
+spec:
+  selector:
+    app: ingestion-gateway
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001
+

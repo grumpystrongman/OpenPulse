@@ -1,0 +1,12 @@
+version: 1.0.0
+weights:
+  security_risk: 0.35
+  implementation_cost: 0.20
+  adoption_penalty: 0.25
+  community_penalty: 0.20
+non_backward_compatible_penalty: 4
+high_scope_penalty: 5
+medium_scope_penalty: 2
+decision_thresholds:
+  conditional: 35
+  reject: 58

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ops-console
+  namespace: openpulse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ops-console
+  template:
+    metadata:
+      labels:
+        app: ops-console
+    spec:
+      containers:
+        - name: ops-console
+          image: openpulse/standard:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: openpulse-env
+          workingDir: /app/services/ops-console
+          command: ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8007"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ops-console
+  namespace: openpulse
+spec:
+  selector:
+    app: ops-console
+  ports:
+    - name: http
+      port: 8007
+      targetPort: 8007
+

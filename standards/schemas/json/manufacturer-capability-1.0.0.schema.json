@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpulse.dev/schema/manufacturer-capability/1.0.0",
+  "title": "Manufacturer Capability Declaration",
+  "type": "object",
+  "required": ["manufacturer", "auth_model", "ingestion_mode", "supported_metrics"],
+  "properties": {
+    "manufacturer": { "type": "string" },
+    "auth_model": { "type": "string" },
+    "ingestion_mode": { "type": "string" },
+    "supported_metrics": { "type": "array", "items": { "type": "string" } },
+    "update_frequency": { "type": "string" },
+    "quirks": { "type": "array", "items": { "type": "string" } },
+    "brand_metadata": {
+      "type": "object",
+      "properties": {
+        "display_name": { "type": "string" },
+        "logo_url": { "type": "string" },
+        "attribution_required": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpulse.dev/schema/ingest-envelope/1.0.0",
+  "title": "OpenPulse Ingest Envelope",
+  "type": "object",
+  "required": [
+    "envelope_id",
+    "manufacturer",
+    "subject_id",
+    "connection_id",
+    "idempotency_key",
+    "received_time",
+    "source_payload"
+  ],
+  "properties": {
+    "envelope_id": { "type": "string" },
+    "manufacturer": { "type": "string" },
+    "subject_id": { "type": "string" },
+    "connection_id": { "type": "string" },
+    "idempotency_key": { "type": "string" },
+    "received_time": { "type": "string", "format": "date-time" },
+    "source_payload": { "type": "object" },
+    "source_endpoint": { "type": ["string", "null"] },
+    "device": {
+      "type": ["object", "null"],
+      "properties": {
+        "device_id": { "type": "string" },
+        "manufacturer": { "type": "string" },
+        "model": { "type": ["string", "null"] },
+        "firmware_version": { "type": ["string", "null"] },
+        "app_version": { "type": ["string", "null"] }
+      },
+      "required": ["device_id", "manufacturer"]
+    }
+  }
+}
